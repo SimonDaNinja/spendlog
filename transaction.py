@@ -21,11 +21,6 @@ class Transaction:
         else:
             self.capitalChange = capitalChange
 
-        if counterParty is None:
-            self.counterParty = CounterPartyDataBase().getCounterParty("")
-        else:
-            self.counterParty = counterParty
-
         if tags is None:
             if counterParty is not None:
                 self.tags = counterParty.tags
@@ -45,6 +40,12 @@ class Transaction:
             self.date = datetime.datetime.now()
         else:
             self.date = date
+
+        if counterParty is None:
+            self.counterParty = CounterPartyDataBase().getCounterParty("")
+        else:
+            self.counterParty = counterParty
+            self.counterParty.transactionModifier(self)
 
     def getLiquidityChange(self):
         return self.liquidityChange

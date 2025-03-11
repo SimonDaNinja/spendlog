@@ -1,5 +1,5 @@
 class CounterParty:
-    def __init__(self, name, tags = None, category = None):
+    def __init__(self, name, tags = None, category = None, transactionModifier = None):
         self.name = name
 
         if tags is None:
@@ -8,6 +8,11 @@ class CounterParty:
             self.tags = tags
 
         self.category = category
+
+        if transactionModifier is not None:
+            self.transactionModifier = transactionModifier
+        else:
+            self.transactionModifier = lambda x : None
 
     def __str__(self):
         return self.name
@@ -26,10 +31,10 @@ class CounterPartyDataBase:
             self.addCounterParty([alias])
         return self.aliasToCounterPartyMap[alias]
 
-    def addCounterParty(self, aliases, tags = None, category = None):
+    def addCounterParty(self, aliases, *args, **kwargs):
         if not aliases:
             return
         name = aliases[0]
-        counterParty = CounterParty(name, tags, category)
+        counterParty = CounterParty(name, *args, **kwargs)
         for alias in aliases:
             self.aliasToCounterPartyMap[alias] = counterParty
