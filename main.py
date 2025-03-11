@@ -27,9 +27,10 @@ def convertToDate(dateString):
         return None
 
 if __name__ == '__main__':
+    filename = "transaktionsinput.txt"
     specificCounterPartyDatabase.populateCounterPartyDatabase()
     parser = Parser()
-    parser.parse("raw_input.txt")
+    parser.parse(filename)
     format = "%Y-%m-%d"
     #start = datetime.datetime.strptime("2025-01-24", format)
     #end = datetime.datetime.strptime("2025-02-24", format)
