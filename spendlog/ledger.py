@@ -17,7 +17,8 @@ class Ledger:
             logging.debug(f"Initializing and returning new Ledger")
             cls._instance = super().__new__(cls, *args, **kwargs)
             cls.transactionSet = set()
-        logging.debug(f"Ledger already exists. Returning existing instance")
+        else:
+            logging.debug(f"Ledger already exists. Returning existing instance")
         return cls._instance
 
     @classmethod

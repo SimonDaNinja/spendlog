@@ -34,7 +34,9 @@ class CounterPartyDataBase:
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
             cls.aliasToCounterPartyMap = dict()
-            logging.debug(f"initializing CounterPartyDataBase")
+            logging.debug(f"Initializing and returning new CounterPartyDataBase")
+        else:
+            logging.debug(f"CounterPartyDataBase already exists. Returning existing instance")
         return cls._instance
 
     @classmethod
