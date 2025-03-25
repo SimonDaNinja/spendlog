@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 class Logger:
 
@@ -13,7 +12,7 @@ class Logger:
     def _init(self):
         logFormat = "[%(asctime)s] %(funcName)s(), %(filename)s:%(lineno)d (%(levelname)s): \"%(message)s\""
         logging.basicConfig(
-            level = logging.DEBUG,
+            level = logging.WARNING,
             format = logFormat,
             datefmt="%Y-%m-%d"
         )
