@@ -14,7 +14,7 @@ class Transaction:
             return hash(self.fingerPrint)
         return hash((self.liquidityChange,
                      self.capitalChange,
-                     self.counterParty,
+                     self.counterPartyAlias,
                      self.date,
                      tuple(self.tags),
                      self.category))
@@ -27,8 +27,8 @@ class Transaction:
                 raise FingerprintMismatchError(f"Fingerprint matches but liquidityChange differs! self: {self.liquidityChange}, other: {other.liquidityChange}")
             if self.capitalChange != other.capitalChange:
                 raise FingerprintMismatchError(f"Fingerprint matches but capitalChange differs! self: {self.capitalChange}, other: {other.capitalChange}")
-            if self.counterParty != other.counterParty:
-                raise FingerprintMismatchError(f"Fingerprint matches but counterParty differs! self: {self.counterParty}, other: {other.counterParty}")
+            if self.counterPartyAlias != other.counterPartyAlias:
+                raise FingerprintMismatchError(f"Fingerprint matches but counterParty differs! self: {self.counterPartyAlias}, other: {other.counterPartyAlias}")
             if self.date != other.date:
                 raise FingerprintMismatchError(f"Fingerprint matches but date differs! self: {self.date}, other: {other.date}")
             if self.tags != other.tags:
@@ -39,7 +39,7 @@ class Transaction:
         return False
 
     def __str__(self):
-        return f"Money spent: {self.liquidityChange}; Capital gain: {self.capitalChange}; Counter Party:{self.counterParty}; transaction date: {self.date}; tags: {self.tags}; category: {self.category}"
+        return f"Money spent: {self.liquidityChange}; Capital gain: {self.capitalChange}; Counter Party:{self.counterPartyAlias}; transaction date: {self.date}; tags: {self.tags}; category: {self.category}"
 
     def __repr__(self):
         return str(self)
@@ -57,16 +57,16 @@ class Transaction:
 
         if counterPartyAlias is None:
             counterPartyAlias = ""
-        self.counterParty =CounterPartyDataBase().getCounterParty(counterPartyAlias)
+        self.counterPartyAlias = counterPartyAlias
 
         if tags is None:
-            self.tags = self.counterParty.tags
+            self.tags = self.getCounterParty().tags
         else:
             self.tags = tags
 
         self.category = category
         if category is None:
-            self.category = self.counterParty.category
+            self.category = self.getCounterParty().category
         if self.category is None:
             self.category = "uncategorized"
 
@@ -75,7 +75,7 @@ class Transaction:
         else:
             self.date = date
 
-        self.counterParty.transactionModifier(self)
+        self.getCounterParty().transactionModifier(self)
         assert isinstance(fingerPrint, Hashable), "Transaction fingerprint must be hashable!"
         if fingerPrint is None:
             logging.warning("Instantiating transaction without fingerprint! This can be risky!")
@@ -92,7 +92,7 @@ class Transaction:
         return self.liquidityChange + self.capitalChange
 
     def getCounterParty(self):
-        return self.counterParty
+        return CounterPartyDataBase().getCounterParty(self.counterPartyAlias)
 
     def getTags(self):
         return self.tags
@@ -109,8 +109,8 @@ class Transaction:
     def setCapitalChange(self, capitalChange):
         self.capitalChange = capitalChange
 
-    def setCounterParty(self, counterParty):
-        self.counterParty = counterParty
+    def setCounterPartyAlias(self, counterPartyAlias):
+        self.counterPartyAlias = counterPartyAlias
 
     def setTags(self, tags):
         self.tags = tags

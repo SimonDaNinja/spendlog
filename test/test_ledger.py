@@ -485,7 +485,7 @@ class TestLedger(unittest.TestCase):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction3 = Transaction(**kwargs3)
         Ledger().addTransaction(**kwargs3)
-        transactionsWithCounterParty = Ledger().getAllTransactionsWithCounterParty(CounterPartyDataBase().getCounterParty("alias"))
+        transactionsWithCounterParty = Ledger().getAllTransactionsWithCounterParty("alias")
 
         self.assertTrue(transaction1 in transactionsWithCounterParty)
         self.assertTrue(transaction2 in transactionsWithCounterParty)
@@ -522,7 +522,7 @@ class TestLedger(unittest.TestCase):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction3 = Transaction(**kwargs3)
         Ledger().addTransaction(**kwargs3)
-        transactionsWithCounterParty = Ledger().getAllTransactionsWithoutCounterParty(CounterPartyDataBase().getCounterParty("alias2"))
+        transactionsWithCounterParty = Ledger().getAllTransactionsWithoutCounterParty("alias2")
 
         self.assertTrue(transaction1 in transactionsWithCounterParty)
         self.assertTrue(transaction2 in transactionsWithCounterParty)
@@ -559,8 +559,7 @@ class TestLedger(unittest.TestCase):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction3 = Transaction(**kwargs3)
         Ledger().addTransaction(**kwargs3)
-        transactionsWithCounterParty = Ledger().getAllTransactionsInCounterParties([CounterPartyDataBase().getCounterParty("alias"),
-                                                                                    CounterPartyDataBase().getCounterParty("alias2")])
+        transactionsWithCounterParty = Ledger().getAllTransactionsInCounterParties(["alias", "alias2"])
 
         self.assertTrue(transaction1 in transactionsWithCounterParty)
         self.assertTrue(transaction2 in transactionsWithCounterParty)

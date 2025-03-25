@@ -1,4 +1,5 @@
 from spendlog.ledger import Ledger, TimeRange
+from counterParty import CounterPartyDataBase
 
 class Presenter:
     def __init__(self):
@@ -47,9 +48,9 @@ class BasicPresenter(Presenter):
         self.counterParties.sort(key = lambda x : Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = x))
         for counterParty in self.counterParties:
             print(f"  {counterParty}:")
-            print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = counterParty)}")
+            print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = counterParty.name)}")
             if presentCapitalChange:
-                print(f"    capital change: {Ledger().getTotalCapitalChange(timeRange = self.timeRange, requiredCounterParty = counterParty)}")
+                print(f"    capital change: {Ledger().getTotalCapitalChange(timeRange = self.timeRange, requiredCounterParty = counterParty.name)}")
         print( "========================================================")
 
         print("Total:")
@@ -75,4 +76,4 @@ class BasicPresenter(Presenter):
         transactions = Ledger().getTransactions(self.timeRange)
         self.counterParties = set()
         for transaction in transactions:
-            self.counterParties.add(transaction.getCounterParty())
+            self.counterParties.add(CounterPartyDataBase().getCounterParty(transaction.counterPartyAlias))

@@ -1,5 +1,6 @@
 from spendlog.transaction import Transaction, FingerprintMismatchError
 from spendlog.loggingProvider import LoggingProvider
+from spendlog.counterParty import CounterPartyDataBase
 logging = LoggingProvider().logging
 
 class TimeRange:
@@ -116,20 +117,23 @@ class Ledger:
                 return False
         return True
 
-    def getAllTransactionsWithCounterParty(self, counterParty) -> list[Transaction]:
-        if counterParty is None:
+    def getAllTransactionsWithCounterParty(self, counterPartyAlias) -> list[Transaction]:
+        if counterPartyAlias is None:
             return self.transactionSet.copy()
-        return {transaction for transaction in self.transactionSet if transaction.counterParty == counterParty}
+        counterParty = CounterPartyDataBase().getCounterParty(counterPartyAlias)
+        return {transaction for transaction in self.transactionSet if CounterPartyDataBase().getCounterParty(transaction.counterPartyAlias) == counterParty}
 
-    def getAllTransactionsWithoutCounterParty(self, counterParty) -> list[Transaction]:
-        if counterParty is None:
+    def getAllTransactionsWithoutCounterParty(self, counterPartyAlias) -> list[Transaction]:
+        if counterPartyAlias is None:
             return self.transactionSet.copy()
-        return {transaction for transaction in self.transactionSet if transaction.counterParty != counterParty}
+        counterParty = CounterPartyDataBase().getCounterParty(counterPartyAlias)
+        return {transaction for transaction in self.transactionSet if CounterPartyDataBase().getCounterParty(transaction.counterPartyAlias) != counterParty}
 
-    def getAllTransactionsInCounterParties(self, counterParties) -> list[Transaction]:
-        if counterParties is None:
+    def getAllTransactionsInCounterParties(self, counterPartyAliases) -> list[Transaction]:
+        if counterPartyAliases is None:
             return self.transactionSet.copy()
-        return {transaction for transaction in self.transactionSet if transaction.counterParty in counterParties}
+        counterParties = {CounterPartyDataBase().getCounterParty(counterPartyAlias) for counterPartyAlias in counterPartyAliases}
+        return {transaction for transaction in self.transactionSet if CounterPartyDataBase().getCounterParty(transaction.counterPartyAlias) in counterParties}
 
     def getTotalLiquidityChange(self, *args, **kwargs) -> list[Transaction]:
         return sum([transaction.getLiquidityChange() for transaction in self.getTransactions(*args, **kwargs)])

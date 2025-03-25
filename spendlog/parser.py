@@ -1,5 +1,4 @@
 from spendlog.ledger import Ledger
-from spendlog.counterParty import CounterPartyDataBase
 from spendlog.loggingProvider import LoggingProvider
 logging = LoggingProvider().logging
 import datetime
