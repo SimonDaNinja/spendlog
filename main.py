@@ -1,8 +1,9 @@
-from presenter import BasicPresenter
+from spendlog.parser import InternetbankenParser
+from spendlog.presenter import BasicPresenter
+
 import datetime
 import specificCounterPartyDatabase
 
-from parser import InternetbankenParser
 
 DATE_FORMAT = "%Y-%m-%d"
 

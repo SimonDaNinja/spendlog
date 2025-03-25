@@ -1,4 +1,4 @@
-from ledger import Ledger, TimeRange
+from spendlog.ledger import Ledger, TimeRange
 
 class Presenter:
     def __init__(self):

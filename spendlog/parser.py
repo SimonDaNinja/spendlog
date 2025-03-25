@@ -1,7 +1,8 @@
-from ledger import Ledger
-from counterParty import CounterPartyDataBase
+from spendlog.ledger import Ledger
+from spendlog.counterParty import CounterPartyDataBase
+from spendlog.loggingProvider import LoggingProvider
+logging = LoggingProvider().logging
 import datetime
-from logger import Logger
 
 DATE_TIME_FORMAT = "%Y-%m-%d"
 
@@ -13,19 +14,19 @@ LIQUIDITY_CHANGE_INDEX = 6
 
 class Parser:
     def __init__(self):
-        Logger().logging.info(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
+        logging.info(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def parseFromFilename(self, filename):
-        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
+        logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def parse(self, content):
-        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
+        logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def readFile(self, filename):
-        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
+        logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def parseTransactionLines(self, transactionLines):
-        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
+        logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
 # This parser takes transaction data copy pasted in bulk directly from the
 # browser in Swedbank's Internetbanken into a file. It is thus extremely dependent
@@ -57,13 +58,12 @@ class InternetbankenParser(Parser):
         rawTransactionDate = transactionLines[TRANSACTION_DATE_INDEX]
         rawLiquidityChange = transactionLines[LIQUIDITY_CHANGE_INDEX]
 
-        counterParty = CounterPartyDataBase().getCounterParty(alias)
         transactionDate = datetime.datetime.strptime(rawTransactionDate, DATE_TIME_FORMAT)
         liquidityChange = int(rawLiquidityChange.replace(' ','').split(',')[0])
 
         fingerPrint = hash('\n'.join(transactionLines))
 
         Ledger().addTransaction(liquidityChange = liquidityChange,
-                                counterParty = counterParty,
+                                counterPartyAlias = alias,
                                 date = transactionDate,
                                 fingerPrint = fingerPrint)

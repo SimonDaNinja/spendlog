@@ -1,6 +1,6 @@
 import logging
 
-class Logger:
+class LoggingProvider:
 
     _instance = None
     def __new__(cls, *args, **kwargs):
@@ -17,3 +17,8 @@ class Logger:
             datefmt="%Y-%m-%d"
         )
         self.logging = logging
+        self.logging.debug(f"LoggingProvider initialized")
+
+    @classmethod
+    def reset(cls):
+        cls._instance = None

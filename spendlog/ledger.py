@@ -1,4 +1,6 @@
-from transaction import Transaction
+from spendlog.transaction import Transaction, FingerprintMismatchError
+from spendlog.loggingProvider import LoggingProvider
+logging = LoggingProvider().logging
 
 class TimeRange:
     def __init__(self, start, end):
@@ -9,12 +11,31 @@ class Ledger:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
+        logging.debug(f"Ledger requested")
         if cls._instance is None:
+            logging.debug(f"Initializing and returning new Ledger")
             cls._instance = super().__new__(cls, *args, **kwargs)
             cls.transactionSet = set()
+        logging.debug(f"Ledger already exists. Returning existing instance")
         return cls._instance
 
+    @classmethod
+    def reset(cls):
+        logging.debug(f"Reset Ledger")
+        cls._instance = None
+        cls.transactionSet = set()
+
     def addTransaction(self, *args, **kwargs):
+        newTransaction = Transaction(*args, **kwargs)
+        try:
+            if newTransaction in self.transactionSet:
+                logging.warning("Transaction already exists!")
+        except FingerprintMismatchError as e:
+            logging.error(str(e) + "\nNote: Replacing old transaction with new to recover.")
+            for oldTransaction in self.transactionSet:
+                if hash(newTransaction) == hash(oldTransaction):
+                    self.transactionSet.remove(oldTransaction)
+                    break
         self.transactionSet.add(Transaction(*args, **kwargs))
 
     def getTransactions(self,

@@ -1,8 +1,9 @@
-from logger import Logger
+from spendlog.loggingProvider import LoggingProvider
+logging = LoggingProvider().logging
 
 class CounterParty:
     def __init__(self, name, tags = None, category = None, transactionModifier = None):
-        Logger().logging.debug(f"Instantiating CoungerParty: name: {name}, tags: {tags}, category: {category}, transactionModifier: {"no" if transactionModifier is None else "yes"}")
+        logging.debug(f"Instantiating CoungerParty: name: {name}, tags: {tags}, category: {category}, transactionModifier: {"no" if transactionModifier is None else "yes"}")
         self.name = name
 
         if tags is None:
@@ -33,11 +34,18 @@ class CounterPartyDataBase:
         if cls._instance is None:
             cls._instance = super().__new__(cls, *args, **kwargs)
             cls.aliasToCounterPartyMap = dict()
+            logging.debug(f"initializing CounterPartyDataBase")
         return cls._instance
+
+    @classmethod
+    def reset(cls):
+        cls.aliasToCounterPartyMap = dict()
+        cls._instance = None
+        logging.debug(f"Reset CounterPartyDataBase")
 
     def getCounterParty(self, alias):
         if alias not in self.aliasToCounterPartyMap:
-            Logger().logging.info(f"'{alias}' is not in counter party database. Adding it")
+            logging.info(f"'{alias}' is not in counter party database. Adding it")
             self.addCounterParty([alias])
         return self.aliasToCounterPartyMap[alias]
 
@@ -48,3 +56,4 @@ class CounterPartyDataBase:
         counterParty = CounterParty(name, *args, **kwargs)
         for alias in aliases:
             self.aliasToCounterPartyMap[alias] = counterParty
+
