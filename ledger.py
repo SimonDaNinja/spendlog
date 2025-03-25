@@ -87,7 +87,6 @@ class Ledger:
     def getAllTransactionsWithAllowedTags(self, tags) -> list[Transaction]:
         if tags is None:
             return self.transactionSet.copy()
-        # TODO: implement this
         return {transaction for transaction in self.transactionSet if self.isAllTagsAllowed(tags, transaction.tags)}
     
     def isAllTagsAllowed(self, allowedTags, tags) -> bool:

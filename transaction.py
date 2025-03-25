@@ -12,7 +12,7 @@ class Transaction:
     def __init__(self, liquidityChange = None, capitalChange = None, counterParty = None, tags = None, category = None, date = None):
 
         if liquidityChange is None:
-            self.lequidityChange = 0
+            self.liquidityChange = 0
         else:
             self.liquidityChange = liquidityChange
 

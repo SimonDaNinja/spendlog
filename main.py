@@ -1,6 +1,4 @@
 from presenter import BasicPresenter
-from ledger import Ledger
-from counterParty import CounterPartyDataBase
 import datetime
 import specificCounterPartyDatabase
 
