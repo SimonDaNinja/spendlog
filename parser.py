@@ -27,10 +27,10 @@ class Parser:
     def parseTransactionLines(self, transactionLines):
         Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
-# This parser takes transaction data copy pasted directly from the browser
-# in Swedbank's Internetbanken into a file. It is thus extremely dependent
-# on being in this exact format. Unless you intend to use this project
-# in this exact way, you are recommended to implement your own parser
+# This parser takes transaction data copy pasted in bulk directly from the
+# browser in Swedbank's Internetbanken into a file. It is thus extremely dependent
+# on being in this exact format. Unless you intend to use this project in this exact
+# way, you are recommended to implement your own parser
 class InternetbankenParser(Parser):
     def __init__(self):
         pass
