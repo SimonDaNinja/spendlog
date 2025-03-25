@@ -458,7 +458,7 @@ class TestLedger(unittest.TestCase):
         kwargs1 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias",
+            "counterPartyAlias"   : "alias",                            # NOTE: has the specified counter party alias
             "tags"                : ["tag 1","tag 2"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-01-24"),
@@ -468,7 +468,7 @@ class TestLedger(unittest.TestCase):
         kwargs2 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias",
+            "counterPartyAlias"   : "alias",                            # NOTE: has the specified counter party alias
             "tags"                : ["tag 2", "tag 3"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-01-14"),
@@ -478,7 +478,7 @@ class TestLedger(unittest.TestCase):
         kwargs3 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias2",
+            "counterPartyAlias"   : "alias2",                           # NOTE: does not have the specified counter party alias
             "tags"                : ["tag 3", "tag 4"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-03-14"),
@@ -495,7 +495,7 @@ class TestLedger(unittest.TestCase):
         kwargs1 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias",
+            "counterPartyAlias"   : "alias",                            # NOTE: does not have the specified counter party alias
             "tags"                : ["tag 1","tag 2"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-01-24"),
@@ -505,7 +505,7 @@ class TestLedger(unittest.TestCase):
         kwargs2 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias",
+            "counterPartyAlias"   : "alias",                            # NOTE: does not have the specified counter party alias
             "tags"                : ["tag 2", "tag 3"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-01-14"),
@@ -515,7 +515,7 @@ class TestLedger(unittest.TestCase):
         kwargs3 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias2",
+            "counterPartyAlias"   : "alias2",                            # NOTE: has the specified counter party alias
             "tags"                : ["tag 3", "tag 4"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-03-14"),
@@ -532,7 +532,7 @@ class TestLedger(unittest.TestCase):
         kwargs1 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias",
+            "counterPartyAlias"   : "alias",                            # NOTE: has one of the specified counter party aliases
             "tags"                : ["tag 1","tag 2"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-01-24"),
@@ -542,7 +542,7 @@ class TestLedger(unittest.TestCase):
         kwargs2 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias2",
+            "counterPartyAlias"   : "alias2",                            # NOTE: has one of the specified counter party aliases
             "tags"                : ["tag 2", "tag 3"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-01-14"),
@@ -552,7 +552,7 @@ class TestLedger(unittest.TestCase):
         kwargs3 = {
             "liquidityChange"     : 1,
             "capitalChange"       : 2,
-            "counterPartyAlias"   : "alias3",
+            "counterPartyAlias"   : "alias3",                            # NOTE: does not have any of the specified counter party aliases
             "tags"                : ["tag 3", "tag 4"],
             "category"            : "booze",
             "date"                : self.strToDateTime("2025-03-14"),
