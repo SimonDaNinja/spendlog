@@ -14,11 +14,11 @@ class BasicPresenter(Presenter):
         self.fetchCategories()
         self.fetchCounterParties()
 
-    def present(self, includeCapitalChange = False, includeAllTransactions = False):
+    def present(self, presentCapitalChange = False, presentAllTransactions = False):
         print(f" Summary of economy between {self.timeRange.start} and {self.timeRange.end} ")
         print( "========================================================")
 
-        if includeAllTransactions:
+        if presentAllTransactions:
             print("All transactions:")
             for transaction in Ledger().getTransactions(timeRange = self.timeRange):
                 print("  " + str(transaction))
@@ -28,7 +28,7 @@ class BasicPresenter(Presenter):
         for tag in self.tags:
             print(f"  {tag}:")
             print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredTags = [tag])}")
-            if includeCapitalChange:
+            if presentCapitalChange:
                 print(f"    capital change: {Ledger().getTotalCapitalChange(requiredTags = [tag])}")
         print( "========================================================")
 
@@ -38,7 +38,7 @@ class BasicPresenter(Presenter):
         for category in self.categories:
             print(f"  {category}:")
             print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCategory = category)}")
-            if includeCapitalChange:
+            if presentCapitalChange:
                 print(f"    capital change: {Ledger().getTotalCapitalChange(timeRange = self.timeRange, requiredCategory = category)}")
         print( "========================================================")
 
@@ -48,7 +48,7 @@ class BasicPresenter(Presenter):
         for counterParty in self.counterParties:
             print(f"  {counterParty}:")
             print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = counterParty)}")
-            if includeCapitalChange:
+            if presentCapitalChange:
                 print(f"    capital change: {Ledger().getTotalCapitalChange(timeRange = self.timeRange, requiredCounterParty = counterParty)}")
         print( "========================================================")
 
