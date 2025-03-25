@@ -1,6 +1,7 @@
 from ledger import Ledger
 from counterParty import CounterPartyDataBase
 import datetime
+from logger import Logger
 
 DATE_TIME_FORMAT = "%Y-%m-%d"
 
@@ -12,10 +13,33 @@ LIQUIDITY_CHANGE_INDEX = 6
 
 class Parser:
     def __init__(self):
+        Logger().logging.warning("This parser is not implemented!")
+
+    def parseFromFilename(self, filename):
+        Logger().logging.warning("This parser is not implemented!")
+
+    def parse(self, content):
+        Logger().logging.warning("This parser is not implemented!")
+
+    def readFile(self, filename):
+        Logger().logging.warning("This parser is not implemented!")
+
+    def parseTransactionLines(self, transactionLines):
+        Logger().logging.warning("This parser is not implemented!")
+
+# This parser takes transaction data copy pasted directly from the browser
+# in Swedbank's Internetbanken into a file. It is thus extremely dependent
+# on being in this exact format. Unless you intend to use this project
+# in this exact way, you are recommended to implement your own parser
+class InternetbankenParser(Parser):
+    def __init__(self):
         pass
 
-    def parse(self, filename):
+    def parseFromFilename(self, filename):
         content = self.readFile(filename)
+        self.parse(content)
+
+    def parse(self, content):
         lines = content.split('\n')
         nLines = len(lines)
         i = 0
@@ -40,4 +64,3 @@ class Parser:
         Ledger().addTransaction(liquidityChange = liquidityChange,
                                 counterParty = counterParty,
                                 date = transactionDate)
-        

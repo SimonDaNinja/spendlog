@@ -2,7 +2,7 @@ from presenter import BasicPresenter
 import datetime
 import specificCounterPartyDatabase
 
-from parser import Parser
+from parser import InternetbankenParser
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -27,8 +27,8 @@ def convertToDate(dateString):
 if __name__ == '__main__':
     filename = "transaktionsinput.txt"
     specificCounterPartyDatabase.populateCounterPartyDatabase()
-    parser = Parser()
-    parser.parse(filename)
+    parser = InternetbankenParser()
+    parser.parseFromFilename(filename)
     format = "%Y-%m-%d"
     #start = datetime.datetime.strptime("2025-01-24", format)
     #end = datetime.datetime.strptime("2025-02-24", format)
