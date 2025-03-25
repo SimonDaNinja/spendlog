@@ -23,18 +23,28 @@ class Transaction:
         if self.fingerPrint is None or other.fingerPrint is None:
             return False
         if self.fingerPrint == other.fingerPrint:
+            anyDiffer = False
+            errorString = ""
             if self.liquidityChange != other.liquidityChange:
-                raise FingerprintMismatchError(f"Fingerprint matches but liquidityChange differs! self: {self.liquidityChange}, other: {other.liquidityChange}")
+                anyDiffer = True
+                errorString +=f"\nFingerprint matches but liquidityChange differs!\nself: '{self.liquidityChange}',\nother: '{other.liquidityChange}'"
             if self.capitalChange != other.capitalChange:
-                raise FingerprintMismatchError(f"Fingerprint matches but capitalChange differs! self: {self.capitalChange}, other: {other.capitalChange}")
+                anyDiffer = True
+                errorString +=f"\nFingerprint matches but capitalChange differs!\nself: '{self.capitalChange}',\nother: '{other.capitalChange}'"
             if self.counterPartyAlias != other.counterPartyAlias:
-                raise FingerprintMismatchError(f"Fingerprint matches but counterParty differs! self: {self.counterPartyAlias}, other: {other.counterPartyAlias}")
+                anyDiffer = True
+                errorString +=f"\nFingerprint matches but counterPartyAlias differs!\nself: '{self.counterPartyAlias}',\nother: '{other.counterPartyAlias}'"
             if self.date != other.date:
-                raise FingerprintMismatchError(f"Fingerprint matches but date differs! self: {self.date}, other: {other.date}")
+                anyDiffer = True
+                errorString +=f"\nFingerprint matches but date differs!\nself: '{self.date}',\nother: '{other.date}'"
             if self.tags != other.tags:
-                raise FingerprintMismatchError(f"Fingerprint matches but tags differs! self: {self.tags}, other: {other.tags}")
+                anyDiffer = True
+                errorString +=f"\nFingerprint matches but tags differs!\nself: '{self.tags}',\nother: '{other.tags}'"
             if self.category != other.category:
-                raise FingerprintMismatchError(f"Fingerprint matches but category differs! self: {self.category}, other: {other.category}")
+                anyDiffer = True
+                errorString +=f"\nFingerprint matches but category differs!\nself: '{self.category}',\nother: '{other.category}'"
+            if anyDiffer:
+                raise FingerprintMismatchError(errorString)
             return True
         return False
 
