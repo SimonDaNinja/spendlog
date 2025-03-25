@@ -61,6 +61,9 @@ class InternetbankenParser(Parser):
         transactionDate = datetime.datetime.strptime(rawTransactionDate, DATE_TIME_FORMAT)
         liquidityChange = int(rawLiquidityChange.replace(' ','').split(',')[0])
 
+        fingerPrint = hash('\n'.join(transactionLines))
+
         Ledger().addTransaction(liquidityChange = liquidityChange,
                                 counterParty = counterParty,
-                                date = transactionDate)
+                                date = transactionDate,
+                                fingerPrint = fingerPrint)
