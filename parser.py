@@ -13,19 +13,19 @@ LIQUIDITY_CHANGE_INDEX = 6
 
 class Parser:
     def __init__(self):
-        Logger().logging.warning("This parser is not implemented!")
+        Logger().logging.info(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def parseFromFilename(self, filename):
-        Logger().logging.warning("This parser is not implemented!")
+        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def parse(self, content):
-        Logger().logging.warning("This parser is not implemented!")
+        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def readFile(self, filename):
-        Logger().logging.warning("This parser is not implemented!")
+        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
     def parseTransactionLines(self, transactionLines):
-        Logger().logging.warning("This parser is not implemented!")
+        Logger().logging.warning(f"This function has not been implemented in the parser class '{type(self).__name__}'!")
 
 # This parser takes transaction data copy pasted directly from the browser
 # in Swedbank's Internetbanken into a file. It is thus extremely dependent
