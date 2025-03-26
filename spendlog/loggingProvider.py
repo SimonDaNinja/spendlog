@@ -46,74 +46,152 @@ class LoggingProvider:
             format = logFormat,
             datefmt="%Y-%m-%d"
         )
-        cls._instance.addLoglevelEverything()
+        EverythingTraceLogLevelAdder()
         cls.logging = logging
-
-    # NOTE! This function uses a lot of stuff that is "private" to logging, and isn't part
-    # of its API.
-    # thus it is *not* guaranteed to work
-    @classmethod
-    def addLoglevelEverything(cls):
-
-        def handleErrorMinimal(e):
-                logging.everything = logging.debug
-                logging.EVERYTHING = logging.DEBUG
-                logging.error(f'Failed to define logging level EVERYTHING with the following exception:\n\n"{e}"\n\nUsing DEBUG level for EVERYTHING level prints instead')
-
-        try:
-            _is_internal_frame_original = logging._is_internal_frame
-        except Exception as e:
-            handleErrorMinimal(e)
-            return
-
-
-        def handleErrorFull(e):
-            # NOTE! The order here is important!
-            # handleErrorMinimal is invoking logging.error, which needs to happen veeery last, in case
-            # anything else we haven't restored is causing the problem
-            logging._is_internal_frame = _is_internal_frame_original
-            handleErrorMinimal(e)
-
-        def wrapFunctionInErrorHandling(func):
-            def wrapped(*args, **kwargs):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    handleErrorFull(e)
-            return wrapped
-
-        def do():
-            EVERYTHING = 1
-            def logger_everything(self, msg, *args, **kwargs):
-                if self.isEnabledFor(EVERYTHING):
-                    self._log(EVERYTHING, msg, args, **kwargs)
-            logger_everything = wrapFunctionInErrorHandling(logger_everything)
-
-
-            def logging_everything(msg, *args, **kwargs):
-                root = logging.Logger.root
-                if len(root.handlers) == 0:
-                    logging.basicConfig()
-                root.everything(msg, *args, **kwargs)
-            logging_everything = wrapFunctionInErrorHandling(logging_everything)
-
-            def _is_internal_frame_replacement(frame):
-                thisfile=os.path.normcase(logger_everything.__code__.co_filename)
-                filename = os.path.normcase(frame.f_code.co_filename)
-                if thisfile == filename:
-                    return True
-                return _is_internal_frame_original(frame)
-            _is_internal_frame_replacement = wrapFunctionInErrorHandling(_is_internal_frame_replacement)
-
-            logging.EVERYTHING = EVERYTHING
-            logging._is_internal_frame = _is_internal_frame_replacement
-            logging.addLevelName(logging.EVERYTHING, "EVERYTHING")
-            logging.everything = logging_everything
-            logging.Logger.everything = logger_everything
-        wrapFunctionInErrorHandling(do)
-
-        do()
 
     @classmethod
     def reset(cls):
         cls._instance = None
+
+EVERYTHING = 1
+
+class ModuleModder:
+
+    def __init__(self, modifications, restorationMessage = None):
+        self.modifications = modifications
+        self.restorationMessage = restorationMessage
+        self.executeAllModifications()
+
+    def executeAllModifications(self):
+        for modification in self.modifications:
+
+            modification.wrapInjectionsInErrorHandling(self.wrapFunctionInErrorHandling)
+
+            doBeforeModify = self.wrapFunctionInErrorHandling(modification.doBeforeModify)
+            doBeforeModify()
+
+            self.addRestoreStepToHandling(modification.restore)
+            modify = self.wrapFunctionInErrorHandling(modification.modify)
+
+            if not modify():
+                return
+
+class EverythingTraceLogLevelAdder(ModuleModder):
+    def __init__(self):
+        super().__init__(
+            [
+                FirstEverythingAdderModification(),
+                ReplaceIsInternalFrameModification(),
+                AddLevelEverythingModification(),
+                AddLoggerEverythingModification(),
+                AddLoggingEverythingModification()
+            ],
+            ('Failed to define logging level EVERYTHING with the following exception:\n\n"',
+             '"\n\nUsing DEBUG level for EVERYTHING level prints instead')
+        )
+
+    # In theory, making a modification that causes an error means we should proceed to restore
+    # the module modifications in the reverse order from what we made them (this way we are sure
+    # that we take the same path back as we took on the way in)
+    def addRestoreStepToHandling(self, restore):
+        oldHandleError = self.handleError
+        def newHandleError(e):
+            restore()
+            oldHandleError(e)
+        self.handleError = newHandleError
+
+    def wrapFunctionInErrorHandling(self, func):
+        def wrapped(*args, **kwargs):
+            try:
+                func(*args, **kwargs)
+                return True
+            except Exception as e:
+                self.handleError(e)
+                return False
+        return wrapped
+
+    def handleError(self, e):
+        if self.restorationMessage is not None:
+            firstPart, lastPart = self.restorationMessage
+        else:
+            firstPart, lastPart = None, None
+        if firstPart is None:
+            firstPart = "Failed to modify module with the following error: "
+        if lastPart is None:
+            lastPart = ""
+        logging.error(f'{firstPart}{e}{lastPart}')
+
+
+class ModuleModification:
+    def doBeforeModify(self):
+        pass
+
+    def modify(self):
+        pass
+
+    def restore(self):
+        pass
+
+    def wrapInjectionsInErrorHandling(self, wrap):
+        pass
+
+class FirstEverythingAdderModification(ModuleModification):
+
+    def restore(self):
+        logging.Logger.everything = logging.Logger.debug
+        logging.EVERYTHING = logging.DEBUG
+        logging.everything = logging.debug
+
+
+class ReplaceIsInternalFrameModification(ModuleModification):
+
+    def doBeforeModify(self):
+        self._is_internal_frame_original = logging._is_internal_frame
+
+    def restore(self):
+        logging.is_internal_frame = self._is_internal_frame_original
+
+    def modify(self):
+        logging._is_internal_frame = self._is_internal_frame_replacement
+
+    def _is_internal_frame_replacement(self, frame):
+        thisfile=os.path.normcase(self.restore.__code__.co_filename)
+        filename = os.path.normcase(frame.f_code.co_filename)
+        if thisfile == filename:
+            return True
+        return self._is_internal_frame_original(frame)
+
+    def wrapInjectionsInErrorHandling(self, wrap):
+        self._is_internal_frame_replacement = wrap(self._is_internal_frame_replacement)
+
+class AddLevelEverythingModification(ModuleModification):
+
+    def modify(self):
+        logging.EVERYTHING = EVERYTHING
+        logging.addLevelName(logging.EVERYTHING, "EVERYTHING")
+
+class AddLoggerEverythingModification(ModuleModification):
+
+    def modify(self):
+        logging.Logger.everything = self.logger_everything
+
+    def logger_everything(self, loggerSideSelf, msg, *args, **kwargs):
+        if loggerSideSelf.isEnabledFor(EVERYTHING):
+            loggerSideSelf._log(EVERYTHING, msg, args, **kwargs)
+
+    def wrapInjectionsInErrorHandling(self, wrap):
+        self.logger_everything = wrap(self.logger_everything)
+
+class AddLoggingEverythingModification(ModuleModification):
+
+    def modify(self):
+        logging.everything = self.logging_everything
+
+    def logging_everything(self, msg, *args, **kwargs):
+        root = logging.Logger.root
+        if len(root.handlers) == 0:
+            logging.basicConfig()
+        root.everything(msg, *args, **kwargs)
+
+    def wrapInjectionsInErrorHandling(self, wrap):
+        self.logging_everything = wrap(self.logging_everything)
