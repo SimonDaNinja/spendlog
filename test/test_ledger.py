@@ -1,4 +1,3 @@
-import datetime
 from test.test_spendlog import TestSpendlog
 
 from spendlog.ledger import Ledger, TimeRange
@@ -15,9 +14,6 @@ class TestLedger(TestSpendlog):
     def getNewFingerPrint(self):
         self.previousFingerprint += 1
         return self.previousFingerprint
-
-    def strToDateTime(self, string):
-        return datetime.datetime.strptime(string, "%Y-%m-%d")
 
     def testInitializeLedger(self):
         a = Ledger()

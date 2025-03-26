@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from spendlog.loggingProvider import LoggingProvider
 from spendlog.counterParty import CounterPartyDataBase
@@ -14,3 +15,6 @@ class TestSpendlog(unittest.TestCase):
     def resetSingletons(self):
         Ledger().reset()
         CounterPartyDataBase().reset()
+
+    def strToDateTime(self, string):
+        return datetime.datetime.strptime(string, "%Y-%m-%d")
