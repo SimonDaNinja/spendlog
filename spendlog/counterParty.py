@@ -69,6 +69,9 @@ class CounterPartyDataBase:
     def addCounterParty(self, aliases, *args, **kwargs):
         if not aliases:
             return
+        for alias in aliases:
+            if alias in self.aliasToCounterPartyMap:
+                logging.warning(f"Adding counter party with alias '{alias}', which is already in the counter party database! The old alias will be replaced")
         name = aliases[0]
         counterParty = CounterParty(name, *args, **kwargs)
         for alias in aliases:

@@ -97,8 +97,7 @@ class TestCounterPartyDataBase(TestSpendlog):
         self.assertEqual(CounterPartyDataBase().getAllCounterPartyNames(), {"aliasA", "aliasB", "aliasC"})
         self.assertEqual(CounterPartyDataBase().getAllCounterPartyAliases(), {"aliasA", "aliasB", "aliasC", "tommy"})
 
-
-        # get the third counter party by second alias, it has the specified values (first alias is the name)
+        # get the third counter party by second alias, it has the specified values
         counterPartyCSecond = CounterPartyDataBase().getCounterParty(aliasesC[aliasIndex])
         self.assertEqual(counterPartyC.name, aliasesC[nameIndex])
         self.assertEqual(counterPartyC.tags, tagsC)
@@ -108,6 +107,16 @@ class TestCounterPartyDataBase(TestSpendlog):
         self.assertEqual(len(CounterPartyDataBase().getAllCounterParties()), 3)
         self.assertEqual(CounterPartyDataBase().getAllCounterPartyNames(), {"aliasA", "aliasB", "aliasC"})
         self.assertEqual(CounterPartyDataBase().getAllCounterPartyAliases(), {"aliasA", "aliasB", "aliasC", "tommy"})
+
+        # add new party that uses existing alias and test that it now doesn't point to the same counter party
+        aliasesD = ["tommy"]
+        CounterPartyDataBase().addCounterParty(aliasesD)
+        counterPartyD = CounterPartyDataBase().getCounterParty(aliasesD[nameIndex])
+        self.assertEqual(len(CounterPartyDataBase().getAllCounterParties()), 4)
+        self.assertEqual(CounterPartyDataBase().getAllCounterPartyNames(), {"aliasA", "aliasB", "aliasC", "tommy"})
+        self.assertEqual(CounterPartyDataBase().getAllCounterPartyAliases(), {"aliasA", "aliasB", "aliasC", "tommy"})
+        self.assertIsNot(counterPartyC, counterPartyD)
+        self.assertNotEqual(counterPartyC, counterPartyD)
 
         # reset the database
         CounterPartyDataBase().reset()
