@@ -1,5 +1,5 @@
 from spendlog.ledger import Ledger, TimeRange
-from counterParty import CounterPartyDataBase
+from spendlog.counterParty import CounterPartyDataBase
 
 class Presenter:
     def __init__(self):
@@ -13,15 +13,17 @@ class BasicPresenter(Presenter):
         self.timeRange = TimeRange(start, end)
         self.fetchTags()
         self.fetchCategories()
-        self.fetchCounterParties()
+        self.fetchCounterPartyAliases()
 
     def present(self, presentCapitalChange = False, presentAllTransactions = False):
-        print(f" Summary of economy between {self.timeRange.start} and {self.timeRange.end} ")
+        print(f"Summary of economy between {self.timeRange.start} and {self.timeRange.end}")
         print( "========================================================")
 
         if presentAllTransactions:
             print("All transactions:")
-            for transaction in Ledger().getTransactions(timeRange = self.timeRange):
+            transactions = list(Ledger().getTransactions(timeRange = self.timeRange))
+            transactions.sort(key = lambda x : (x.date, x.liquidityChange, x. capitalChange, x.counterPartyAlias))
+            for transaction in transactions:
                 print("  " + str(transaction))
             print( "========================================================")
 
@@ -44,13 +46,13 @@ class BasicPresenter(Presenter):
         print( "========================================================")
 
         print("Counter Parties:")
-        self.counterParties = list(self.counterParties)
-        self.counterParties.sort(key = lambda x : Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = x))
-        for counterParty in self.counterParties:
-            print(f"  {counterParty}:")
-            print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = counterParty.name)}")
+        self.counterPartyAliases = list(self.counterPartyAliases)
+        self.counterPartyAliases.sort(key = lambda x : Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = x))
+        for counterPartyAlias in self.counterPartyAliases:
+            print(f"  {counterPartyAlias}:")
+            print(f"    liquidity: {Ledger().getTotalLiquidityChange(timeRange = self.timeRange, requiredCounterParty = counterPartyAlias)}")
             if presentCapitalChange:
-                print(f"    capital change: {Ledger().getTotalCapitalChange(timeRange = self.timeRange, requiredCounterParty = counterParty.name)}")
+                print(f"    capital change: {Ledger().getTotalCapitalChange(timeRange = self.timeRange, requiredCounterParty = counterPartyAlias)}")
         print( "========================================================")
 
         print("Total:")
@@ -72,8 +74,8 @@ class BasicPresenter(Presenter):
         for transaction in transactions:
             self.categories.add(transaction.getCategory())
 
-    def fetchCounterParties(self):
+    def fetchCounterPartyAliases(self):
         transactions = Ledger().getTransactions(self.timeRange)
-        self.counterParties = set()
+        self.counterPartyAliases = set()
         for transaction in transactions:
-            self.counterParties.add(CounterPartyDataBase().getCounterParty(transaction.counterPartyAlias))
+            self.counterPartyAliases.add(CounterPartyDataBase().getCounterParty(transaction.counterPartyAlias).name)

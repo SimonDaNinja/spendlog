@@ -67,7 +67,8 @@ class Transaction:
 
         if counterPartyAlias is None:
             counterPartyAlias = ""
-        self.counterPartyAlias = counterPartyAlias
+        else:
+            self.counterPartyAlias = CounterPartyDataBase().getCounterParty(counterPartyAlias).name
 
         if tags is None:
             self.tags = self.getCounterParty().tags

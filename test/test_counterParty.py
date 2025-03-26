@@ -1,7 +1,5 @@
 from test.test_spendlog import TestSpendlog
-from spendlog.counterParty import CounterParty
-from spendlog.counterParty import CounterPartyDataBase
-from spendlog.counterParty import NameMismatchError
+from spendlog.counterParty import CounterParty, CounterPartyDataBase, NameMismatchError
 
 class TestCounterParty(TestSpendlog):
 
