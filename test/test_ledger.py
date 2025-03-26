@@ -1,21 +1,16 @@
-import unittest
 import datetime
+from test.test_spendlog import TestSpendlog
 
 from spendlog.ledger import Ledger, TimeRange
-from spendlog.counterParty import CounterPartyDataBase
-from spendlog.loggingProvider import LoggingProvider
 from spendlog.transaction import Transaction, FingerprintMismatchError
 
-logging = LoggingProvider().logging
 
 initList = list()
 
-class TestLedger(unittest.TestCase):
+class TestLedger(TestSpendlog):
     def setUp(self):
+        super().setUp()
         self.previousFingerprint = 0
-        Ledger().reset()
-        CounterPartyDataBase().reset()
-        logging.getLogger().setLevel(logging.DEBUG)
 
     def getNewFingerPrint(self):
         self.previousFingerprint += 1
