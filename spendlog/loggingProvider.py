@@ -57,9 +57,8 @@ EVERYTHING = 1
 
 class ModuleModder:
 
-    def __init__(self, modifications, restorationMessage = None):
+    def __init__(self, modifications):
         self.modifications = modifications
-        self.restorationMessage = restorationMessage
         self.executeAllModifications()
 
     def executeAllModifications(self):
@@ -76,30 +75,6 @@ class ModuleModder:
             if not modify():
                 return
 
-class EverythingTraceLogLevelAdder(ModuleModder):
-    def __init__(self):
-        super().__init__(
-            [
-                FirstEverythingAdderModification(),
-                ReplaceIsInternalFrameModification(),
-                AddLevelEverythingModification(),
-                AddLoggerEverythingModification(),
-                AddLoggingEverythingModification()
-            ],
-            ('Failed to define logging level EVERYTHING with the following exception:\n\n"',
-             '"\n\nUsing DEBUG level for EVERYTHING level prints instead')
-        )
-
-    # In theory, making a modification that causes an error means we should proceed to restore
-    # the module modifications in the reverse order from what we made them (this way we are sure
-    # that we take the same path back as we took on the way in)
-    def addRestoreStepToHandling(self, restore):
-        oldHandleError = self.handleError
-        def newHandleError(e):
-            restore()
-            oldHandleError(e)
-        self.handleError = newHandleError
-
     def wrapFunctionInErrorHandling(self, func):
         def wrapped(*args, **kwargs):
             try:
@@ -111,15 +86,32 @@ class EverythingTraceLogLevelAdder(ModuleModder):
         return wrapped
 
     def handleError(self, e):
-        if self.restorationMessage is not None:
-            firstPart, lastPart = self.restorationMessage
-        else:
-            firstPart, lastPart = None, None
-        if firstPart is None:
-            firstPart = "Failed to modify module with the following error: "
-        if lastPart is None:
-            lastPart = ""
-        logging.error(f'{firstPart}{e}{lastPart}')
+        print(f"Failed to modify module with the following error: {e}")
+
+    # In theory, making a modification that causes an error means we should proceed to restore
+    # the module modifications in the reverse order from what we made them (this way we are sure
+    # that we take the same path back as we took on the way in)
+    def addRestoreStepToHandling(self, restore):
+        oldHandleError = self.handleError
+        def newHandleError(e):
+            restore()
+            oldHandleError(e)
+        self.handleError = newHandleError
+
+class EverythingTraceLogLevelAdder(ModuleModder):
+    def __init__(self):
+        super().__init__(
+            [
+                FirstEverythingAdderModification(),
+                ReplaceIsInternalFrameModification(),
+                AddLevelEverythingModification(),
+                AddLoggerEverythingModification(),
+                AddLoggingEverythingModification()
+            ]
+        )
+
+    def handleError(self, e):
+        logging.error(f'Failed to define logging level EVERYTHING with the following exception:\n\n"{e}"\n\nUsing DEBUG level for EVERYTHING level prints instead')
 
 
 class ModuleModification:
