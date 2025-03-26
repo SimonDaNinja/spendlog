@@ -1,6 +1,9 @@
 from spendlog.loggingProvider import LoggingProvider
 logging = LoggingProvider().logging
 
+class NameMismatchError(Exception):
+    pass
+
 class CounterParty:
     def __init__(self, name, tags = None, category = None, transactionModifier = None):
         logging.debug(f"Instantiating CoungerParty: name: {name}, tags: {tags}, category: {category}, transactionModifier: {"no" if transactionModifier is None else "yes"}")
@@ -22,7 +25,19 @@ class CounterParty:
         return self.name
 
     def __eq__(self, other):
-        return self.name == other.name
+        if self.name == other.name:
+            errorString = ""
+            if self.tags != other.tags:
+                errorString += f"Name matches, but tags differs!\nself: {self.tags},\nother: {other.tags}"
+            if self.category != other.category:
+                errorString += f"Name matches, but category differs!\nself: {self.category},\nother: {other.category}"
+            if self.transactionModifier != other.transactionModifier:
+                errorString += f"Name matches, but transactionModifier differs!\nself: {self.transactionModifier},\nother: {other.transactionModifier}"
+            if errorString:
+                errorString += f"\n(for CounterParty: '{self.name}')"
+                raise NameMismatchError(errorString)
+            return True
+        return False
 
     def __hash__(self):
         return hash(self.name)
@@ -58,4 +73,13 @@ class CounterPartyDataBase:
         counterParty = CounterParty(name, *args, **kwargs)
         for alias in aliases:
             self.aliasToCounterPartyMap[alias] = counterParty
+
+    def getAllCounterParties(self):
+        return set(self.aliasToCounterPartyMap.values())
+
+    def getAllCounterPartyNames(self):
+        return {party.name for party in set(self.aliasToCounterPartyMap.values())}
+
+    def getAllCounterPartyAliases(self):
+        return set(self.aliasToCounterPartyMap.keys())
 
