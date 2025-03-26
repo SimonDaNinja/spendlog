@@ -54,20 +54,48 @@ class LoggingProvider:
     # thus it is *not* guaranteed to work
     @classmethod
     def addLoglevelEverything(cls):
+
+        def handleErrorMinimal(e):
+                logging.everything = logging.debug
+                logging.EVERYTHING = logging.DEBUG
+                logging.error(f'Failed to define logging level EVERYTHING with the following exception:\n\n"{e}"\n\nUsing DEBUG level for EVERYTHING level prints instead')
+
         try:
-            EVERYTHING = 1
-
             _is_internal_frame_original = logging._is_internal_frame
+        except Exception as e:
+            handleErrorMinimal(e)
+            return
 
+
+        def handleErrorFull(e):
+            # NOTE! The order here is important!
+            # handleErrorMinimal is invoking logging.error, which needs to happen veeery last, in case
+            # anything else we haven't restored is causing the problem
+            logging._is_internal_frame = _is_internal_frame_original
+            handleErrorMinimal(e)
+
+        def wrapFunctionInErrorHandling(func):
+            def wrapped(*args, **kwargs):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    handleErrorFull(e)
+            return wrapped
+
+        def do():
+            EVERYTHING = 1
             def logger_everything(self, msg, *args, **kwargs):
                 if self.isEnabledFor(EVERYTHING):
                     self._log(EVERYTHING, msg, args, **kwargs)
+            logger_everything = wrapFunctionInErrorHandling(logger_everything)
+
 
             def logging_everything(msg, *args, **kwargs):
                 root = logging.Logger.root
                 if len(root.handlers) == 0:
                     logging.basicConfig()
                 root.everything(msg, *args, **kwargs)
+            logging_everything = wrapFunctionInErrorHandling(logging_everything)
 
             def _is_internal_frame_replacement(frame):
                 thisfile=os.path.normcase(logger_everything.__code__.co_filename)
@@ -75,16 +103,16 @@ class LoggingProvider:
                 if thisfile == filename:
                     return True
                 return _is_internal_frame_original(frame)
+            _is_internal_frame_replacement = wrapFunctionInErrorHandling(_is_internal_frame_replacement)
 
             logging.EVERYTHING = EVERYTHING
             logging._is_internal_frame = _is_internal_frame_replacement
             logging.addLevelName(logging.EVERYTHING, "EVERYTHING")
             logging.everything = logging_everything
             logging.Logger.everything = logger_everything
-        except Exception as e:
-            logging.warning(f'Failed to define logging level EVERYTHING with the following exception:\n\n"{e}"\n\nUsing DEBUG level for EVERYTHING level prints instead')
-            logging.everything = logging.debug
-            logging.EVERYTHING = logging.DEBUG
+        wrapFunctionInErrorHandling(do)
+
+        do()
 
     @classmethod
     def reset(cls):
