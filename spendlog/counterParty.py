@@ -6,7 +6,6 @@ class NameMismatchError(Exception):
 
 class CounterParty:
     def __init__(self, name, tags = None, category = None, transactionModifier = None):
-        logging.debug(f"Instantiating CoungerParty: name: {name}, tags: {tags}, category: {category}, transactionModifier: {"no" if transactionModifier is None else "yes"}")
         self.name = name
 
         if tags is None:
@@ -51,7 +50,7 @@ class CounterPartyDataBase:
             cls.aliasToCounterPartyMap = dict()
             logging.debug(f"Initializing and returning new CounterPartyDataBase")
         else:
-            logging.debug(f"CounterPartyDataBase already exists. Returning existing instance")
+            logging.everything(f"CounterPartyDataBase already exists. Returning existing instance")
         return cls._instance
 
     @classmethod
