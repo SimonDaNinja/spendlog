@@ -150,7 +150,7 @@ class TestLedger(TestSpendlog):
         Ledger().addTransaction(**kwargs4)
         timeRange = TimeRange(self.strToDateTime("2025-01-10"),
                               self.strToDateTime("2025-01-25"))
-        transactionsInRange = Ledger().getAllTransactionsInTimeRange(timeRange)
+        transactionsInRange = Ledger().getTransactions(timeRange = timeRange)
 
         self.assertTrue(transaction1 in transactionsInRange)
         self.assertTrue(transaction2 in transactionsInRange)
@@ -198,7 +198,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction4 = Transaction(**kwargs4)
         Ledger().addTransaction(**kwargs4)
-        transactionsWithCategory = Ledger().getAllTransactionsWithCategory("booze")
+        transactionsWithCategory = Ledger().getTransactions(requiredCategory = "booze")
 
         self.assertTrue(transaction1 in transactionsWithCategory)
         self.assertTrue(transaction2 in transactionsWithCategory)
@@ -246,7 +246,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction4 = Transaction(**kwargs4)
         Ledger().addTransaction(**kwargs4)
-        transactionsWithoutCategory = Ledger().getAllTransactionsWithoutCategory("booze")
+        transactionsWithoutCategory = Ledger().getTransactions(forbiddenCategory = "booze")
 
         self.assertFalse(transaction1 in transactionsWithoutCategory)
         self.assertFalse(transaction2 in transactionsWithoutCategory)
@@ -294,7 +294,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction4 = Transaction(**kwargs4)
         Ledger().addTransaction(**kwargs4)
-        transactionsInCategories = Ledger().getAllTransactionsInCategories(["booze", "weed"])
+        transactionsInCategories = Ledger().getTransactions(allowedCategories = ["booze", "weed"])
 
         self.assertTrue(transaction1 in transactionsInCategories)
         self.assertTrue(transaction2 in transactionsInCategories)
@@ -342,7 +342,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction4 = Transaction(**kwargs4)
         Ledger().addTransaction(**kwargs4)
-        transactionsWithRequiredTags = Ledger().getAllTransactionsWithRequiredTags(["tag 2", "tag 3"])
+        transactionsWithRequiredTags = Ledger().getTransactions(requiredTags = ["tag 2", "tag 3"])
 
         self.assertTrue(transaction1 in transactionsWithRequiredTags)
         self.assertTrue(transaction2 in transactionsWithRequiredTags)
@@ -390,7 +390,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction4 = Transaction(**kwargs4)
         Ledger().addTransaction(**kwargs4)
-        transactionsWithoutTags = Ledger().getAllTransactionsWithoutTags(["tag 4", "tag 5"])
+        transactionsWithoutTags = Ledger().getTransactions(forbiddenTags = ["tag 4", "tag 5"])
 
         self.assertTrue(transaction1 in transactionsWithoutTags)
         self.assertTrue(transaction2 in transactionsWithoutTags)
@@ -438,7 +438,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction4 = Transaction(**kwargs4)
         Ledger().addTransaction(**kwargs4)
-        transactionsWithAllowedTags = Ledger().getAllTransactionsWithAllowedTags(["tag 2", "tag 3"])
+        transactionsWithAllowedTags = Ledger().getTransactions(allowedTags = ["tag 2", "tag 3"])
 
         self.assertTrue(transaction1 in transactionsWithAllowedTags)
         self.assertTrue(transaction2 in transactionsWithAllowedTags)
@@ -476,7 +476,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction3 = Transaction(**kwargs3)
         Ledger().addTransaction(**kwargs3)
-        transactionsWithCounterParty = Ledger().getAllTransactionsWithCounterParty("alias")
+        transactionsWithCounterParty = Ledger().getTransactions(requiredCounterParty = "alias")
 
         self.assertTrue(transaction1 in transactionsWithCounterParty)
         self.assertTrue(transaction2 in transactionsWithCounterParty)
@@ -513,7 +513,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction3 = Transaction(**kwargs3)
         Ledger().addTransaction(**kwargs3)
-        transactionsWithCounterParty = Ledger().getAllTransactionsWithoutCounterParty("alias2")
+        transactionsWithCounterParty = Ledger().getTransactions(forbiddenCounterParty = "alias2")
 
         self.assertTrue(transaction1 in transactionsWithCounterParty)
         self.assertTrue(transaction2 in transactionsWithCounterParty)
@@ -550,7 +550,7 @@ class TestLedger(TestSpendlog):
             "fingerPrint"         : self.getNewFingerPrint()}
         transaction3 = Transaction(**kwargs3)
         Ledger().addTransaction(**kwargs3)
-        transactionsWithCounterParty = Ledger().getAllTransactionsInCounterParties(["alias", "alias2"])
+        transactionsWithCounterParty = Ledger().getTransactions(allowedCounterParties = ["alias", "alias2"])
 
         self.assertTrue(transaction1 in transactionsWithCounterParty)
         self.assertTrue(transaction2 in transactionsWithCounterParty)

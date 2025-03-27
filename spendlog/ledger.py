@@ -50,7 +50,7 @@ class Ledger:
                  allowedTags = None,
                  requiredCounterParty = None,
                  forbiddenCounterParty = None,
-                 allowedCounterParties = None) -> list[Transaction]:
+                 allowedCounterParties = None) -> set[Transaction]:
         transactions = self.transactionSet.copy()
         transactions &= self.getAllTransactionsInTimeRange(timeRange)
         transactions &= self.getAllTransactionsWithCategory(requiredCategory)
