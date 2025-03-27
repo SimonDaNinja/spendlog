@@ -1,5 +1,7 @@
 import os
 
+# A class for safely modifying an existing module, and recovering if modification of the
+# module fails
 class ModuleModder:
 
     def __init__(self, modifications):
@@ -13,7 +15,7 @@ class ModuleModder:
             doBeforeModify = self.wrapModifyInErrorHandling(modification.doBeforeModify)
             doBeforeModify()
 
-            modification.wrapInjectionsInErrorHandling(self.wrapInjectionInErrorHandling)
+            modification.wrapPayloadInErrorHandling(self.wrapPayloadInErrorHandling)
 
             self.addRestoreStepToHandling(modification.restore)
             modify = self.wrapModifyInErrorHandling(modification.modify)
@@ -21,6 +23,9 @@ class ModuleModder:
             if not modify():
                 return
 
+    # This is distinct from wrapPayloadInErrorHandling!
+    # wrapModifyInErrorHandling handles errors caused when trying to insert the payload, and needs
+    # to return a bool that indicates whether to abort further steps in the modification procedure
     def wrapModifyInErrorHandling(self, func):
         def wrapped(*args, **kwargs):
             try:
@@ -31,7 +36,10 @@ class ModuleModder:
                 return False
         return wrapped
 
-    def wrapInjectionInErrorHandling(self, func, recoverFun):
+    # This is distinct from wrapModifyInErrorHandling!
+    # wrapPayloadInErrorHandling handles runtime errors caused by the payload *after* succesfully inserting it,
+    # and needs to return context relevant output to not cause a crash
+    def wrapPayloadInErrorHandling(self, func, recoverFun):
         def wrapped(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
@@ -69,15 +77,18 @@ class ModuleModification:
     def restore(self):
         pass
 
-    def wrapInjectionsInErrorHandling(self, wrap):
+    def wrapPayloadInErrorHandling(self, wrap):
         pass
 
 # The remaining code is for adding the log level EVERYTHING to the logging module
 # (a severity level more verbose than DEBUG)
 
 import logging
+
+# EVERYTHING is supposed to be the lowest severity level possible
 EVERYTHING = 1
 
+# This modder injects the new severity level EVERYTHING to the logging module.
 class AddTraceLevelEverythingModder(ModuleModder):
     def __init__(self):
         super().__init__(
@@ -94,6 +105,11 @@ class AddTraceLevelEverythingModder(ModuleModder):
         logging.error(f'Failed to define logging level EVERYTHING with the following exception:\n\n"{e}"\n\nUsing DEBUG level for EVERYTHING level prints instead')
 
 
+# Since the code base makes use of logging.everything(), we need a step to provide this
+# symbol even if the modification failed. This Mod simply sets the necessary symbols
+# to use the existing debug level if these symbols are used (so we aren't strictly
+# restoring the module entirely, because that would cause us to crash when these calls
+# inevitably happen)
 class AddFallbackToDebugMod(ModuleModification):
 
     def restore(self):
@@ -101,7 +117,12 @@ class AddFallbackToDebugMod(ModuleModification):
         logging.EVERYTHING = logging.DEBUG
         logging.everything = logging.debug
 
-
+# Since the payloads we inject from this file are not internal to the logging module,
+# the funcName formatting will not show the file calling logging.everythin() by
+# default, but instead it will show this file. To avoid this, we complement logging's
+# check of whether a frame is internal, to first check if it is a frame from this file.
+# If it is, we count it as internal. Otherwise, we proceed to the original check defined
+# inside the logging module.
 class ReplaceIsInternalFrameMod(ModuleModification):
 
     def doBeforeModify(self):
@@ -120,15 +141,20 @@ class ReplaceIsInternalFrameMod(ModuleModification):
             return True
         return self._is_internal_frame_original(frame)
 
-    def wrapInjectionsInErrorHandling(self, wrap):
+    def wrapPayloadInErrorHandling(self, wrap):
         self._is_internal_frame_replacement = wrap(self._is_internal_frame_replacement, self._is_internal_frame_original)
 
+# This simply adds the constant EVERYTHING to the logging module, so it can be
+# used similar to DEBUG, WARNING, etc. when configuring log severity level
 class AddLevelEverythingMod(ModuleModification):
 
     def modify(self):
         logging.EVERYTHING = EVERYTHING
         logging.addLevelName(logging.EVERYTHING, "EVERYTHING")
 
+# This injects the logging function logging.Logger.everything(), by the same principle
+# (and design) as logging's internal corresponding functions logging.Logger.debug(),
+# logging.Logger.warning(), etc.
 class AddLoggerEverythingMod(ModuleModification):
 
     def modify(self):
@@ -138,9 +164,12 @@ class AddLoggerEverythingMod(ModuleModification):
         if loggerSideSelf.isEnabledFor(EVERYTHING):
             loggerSideSelf._log(EVERYTHING, msg, args, **kwargs)
 
-    def wrapInjectionsInErrorHandling(self, wrap):
+    def wrapPayloadInErrorHandling(self, wrap):
         self.logger_everything = wrap(self.logger_everything, logging.Logger.debug)
 
+# This injects the logging function logging.everything(), by the same principle
+# (and design) as logging's internal corresponding functions logging.debug(),
+# logging.warning(), etc.
 class AddLoggingEverythingMod(ModuleModification):
 
     def modify(self):
@@ -152,5 +181,5 @@ class AddLoggingEverythingMod(ModuleModification):
             logging.basicConfig()
         root.everything(msg, *args, **kwargs)
 
-    def wrapInjectionsInErrorHandling(self, wrap):
+    def wrapPayloadInErrorHandling(self, wrap):
         self.logging_everything = wrap(self.logging_everything, logging.debug)
