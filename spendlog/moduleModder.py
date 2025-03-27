@@ -11,13 +11,14 @@ class ModuleModder:
     def executeAllModifications(self):
         for modification in self.modifications:
 
-
             doBeforeModify = self.wrapModifyInErrorHandling(modification.doBeforeModify)
-            doBeforeModify()
+            if not doBeforeModify():
+                return
 
             modification.wrapPayloadInErrorHandling(self.wrapPayloadInErrorHandling)
 
             self.addRestoreStepToHandling(modification.restore)
+
             modify = self.wrapModifyInErrorHandling(modification.modify)
 
             if not modify():
