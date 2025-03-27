@@ -20,7 +20,6 @@ class ModuleModder:
             self.addRestoreStepToHandling(modification.restore)
 
             modify = self.wrapModifyInErrorHandling(modification.modify)
-
             if not modify():
                 return
 
