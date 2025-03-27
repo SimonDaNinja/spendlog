@@ -38,7 +38,9 @@ class ModuleModder:
             except Exception as e:
                 self.handleError(e)
                 # if the function we injected fails inside the modded module, the modded module
-                # is still going to expect a valid return value. recoverFun will safely provide this
+                # is still going to expect a valid return value. recoverFun will safely provide this.
+                # (this is separate from the purpose of handleError, which has the purpose of recovering
+                # the module itself to a stable state)
                 return recoverFun(*args, **kwargs)
         return wrapped
 
